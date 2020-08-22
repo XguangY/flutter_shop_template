@@ -26,9 +26,16 @@ class _HomePageState extends State<HomePage> {
             var data = json.decode(snapshot.data.toString());
             List<Map> swiperDataList =
                 (data['data']['slides'] as List).cast(); // 顶部轮播组件数
+            List<Map> navigatorList =
+                (data['data']['category'] as List).cast(); //类别列表
+            // 处理数据
+            if (navigatorList.length > 10) {
+              navigatorList.removeRange(10, navigatorList.length);
+            }
             return Column(
               children: <Widget>[
                 SwiperDiy(swiperDataList: swiperDataList), //页面顶部轮播组件
+                TopNavigator(navigatorList: navigatorList),
               ],
             );
           } else {
@@ -64,6 +71,43 @@ class SwiperDiy extends StatelessWidget {
         },
         pagination: new SwiperPagination(),
         autoplay: true,
+      ),
+    );
+  }
+}
+
+// 区域导航
+class TopNavigator extends StatelessWidget {
+  // 引入参数
+  final List navigatorList;
+  TopNavigator({Key key, this.navigatorList}) : super(key: key);
+
+  // 抽离子模块
+  Widget _gridViewItemUI(BuildContext context, item) {
+    return InkWell(
+      onTap: () {
+        print('点击了导航');
+      },
+      child: Column(
+        children: <Widget>[
+          Image.network(item['image'], width: 95.w),
+          Text(item['mallCategoryName']),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 320.w,
+      padding: EdgeInsets.all(3.0),
+      child: GridView.count(
+        crossAxisCount: 5,
+        padding: EdgeInsets.all(4.0),
+        children: navigatorList.map((item) {
+          return _gridViewItemUI(context, item);
+        }).toList(),
       ),
     );
   }
